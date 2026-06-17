@@ -166,7 +166,10 @@ export default function App() {
 
   async function handleDelete(id) {
     try {
-      await fetch(`${API_BASE}/history/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/history/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
       setHistory(h => h.filter(r => r.id !== id));
     } catch (e) {
       alert("Delete failed.");
