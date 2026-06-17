@@ -178,6 +178,11 @@ export default function App() {
   }, [tab]);
 
   // ── Derived ───────────────────────────────────────────────────────────
+  const totalReviews = history.length;
+
+  const positiveCount = history.filter(r => r.sentiment === "positive").length;
+  const negativeCount = history.filter(r => r.sentiment === "negative").length;
+  const neutralCount = history.filter(r => r.sentiment === "neutral").length;
   const counts = results.reduce((acc, r) => {
     acc[r.sentiment] = (acc[r.sentiment] || 0) + 1;
     return acc;
