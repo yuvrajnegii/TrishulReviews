@@ -7,7 +7,6 @@
 TrishulReviews — a frontend web app built with JavaScript, React, Vite.
 
 ## 🛠️ Tech Stack
-
 - 🟨 **JavaScript**
 - ⚛️ **React**
 - ⚡ **Vite**
