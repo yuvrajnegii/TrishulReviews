@@ -2,6 +2,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useTheme } from "../ThemeContext";
 
+
 export default function About() {
   const { tokens } = useTheme();
   return (
