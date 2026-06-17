@@ -154,15 +154,14 @@ export default function App() {
     setHistoryLoading(true);
     setHistoryError("");
     try {
-      const res  = await fetch(`${API_BASE}/history`);
+      const res = await fetch(`${API_BASE}/history`);
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
       setHistory(data.history);
     } catch (e) {
-      setHistoryError("Could not load history — make sure the backend is running.");
-    }
+    setHistoryError("Could not load history — make sure the backend is running.");
+    } finally {
     setHistoryLoading(false);
-  }
+    }
 
   async function handleDelete(id) {
     try {
