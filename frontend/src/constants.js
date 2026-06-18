@@ -1,5 +1,5 @@
 // ── Backend URL ────────────────────────────────────────────────────────────
-export const API_BASE = "http://localhost:5000";
+export const API_BASE = "http://localhost:8000";
 
 // ── Constants ──────────────────────────────────────────────────────────────
 export const THEME_TAGS = ["food", "host", "location", "cleanliness", "value", "experience"];
