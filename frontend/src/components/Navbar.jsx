@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
+import { useAuth } from "../AuthContext";
 import { Button } from "./ui";
 
 const LINKS = [
@@ -12,6 +13,7 @@ const LINKS = [
 
 export default function Navbar() {
   const { mode, toggle, tokens } = useTheme();
+  const { user, logout } = useAuth();
 
   return (
     <header style={{
@@ -67,9 +69,19 @@ export default function Navbar() {
               </NavLink>
             ))}
           </nav>
+          {user && (
+            <span style={{ fontSize: 12, color: tokens.textMuted, whiteSpace: "nowrap" }}>
+              Hi, {user.name.split(" ")[0]}
+            </span>
+          )}
           <Button variant="secondary" size="sm" onClick={toggle}>
             {mode === "light" ? "🌙 Dark" : "☀️ Light"}
           </Button>
+          {user && (
+            <Button variant="secondary" size="sm" onClick={logout}>
+              Log out
+            </Button>
+          )}
         </div>
       </div>
     </header>
