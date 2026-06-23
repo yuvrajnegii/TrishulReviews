@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+groq
+bcrypt
+pyjwt
+email-validator
+python-dotenv
