@@ -5,18 +5,18 @@ export const API_BASE = "http://localhost:8000";
 export const THEME_TAGS = ["food", "host", "location", "cleanliness", "value", "experience"];
 
 export const SENTIMENT_STYLE = {
-  positive: { bg: "#EAF3DE", text: "#27500A", border: "#639922", dot: "#639922", label: "Positive" },
-  neutral:  { bg: "#FAEEDA", text: "#633806", border: "#BA7517", dot: "#EF9F27", label: "Neutral"  },
-  negative: { bg: "#FCEBEB", text: "#791F1F", border: "#E24B4A", dot: "#E24B4A", label: "Negative" },
+  positive: { bg: "#E6F4EE", text: "#0F5C3F", border: "#0F7A52", dot: "#0F7A52", label: "Positive" },
+  neutral:  { bg: "#F3EFE3", text: "#7A5C1E", border: "#B98B2E", dot: "#C99A3A", label: "Neutral"  },
+  negative: { bg: "#FBEDE5", text: "#8C3811", border: "#B8460E", dot: "#B8460E", label: "Negative" },
 };
 
 export const THEME_STYLE = {
-  food:        { bg: "#E6F1FB", text: "#0C447C", label: "Food"        },
-  host:        { bg: "#EEEDFE", text: "#3C3489", label: "Host"        },
-  location:    { bg: "#E1F5EE", text: "#085041", label: "Location"    },
-  cleanliness: { bg: "#FAECE7", text: "#712B13", label: "Cleanliness" },
-  value:       { bg: "#FAEEDA", text: "#633806", label: "Value"       },
-  experience:  { bg: "#FBEAF0", text: "#72243E", label: "Experience"  },
+  food:        { bg: "#E8EFFA", text: "#1E4C84", label: "Food"        },
+  host:        { bg: "#ECEAFB", text: "#4338A6", label: "Host"        },
+  location:    { bg: "#E3F3EC", text: "#0E5C45", label: "Location"    },
+  cleanliness: { bg: "#FBEEE5", text: "#7A3D17", label: "Cleanliness" },
+  value:       { bg: "#F3EFE3", text: "#7A5C1E", label: "Value"       },
+  experience:  { bg: "#FAEAF1", text: "#85265A", label: "Experience"  },
 };
 
 export const SAMPLE_REVIEWS = [
@@ -34,8 +34,9 @@ export const SAMPLE_REVIEWS = [
 
 // Shared button style helper used across pages
 export const btnStyle = (active) => ({
-  fontSize: 12, padding: "4px 10px", cursor: "pointer",
-  border: "1px solid #e5e4dc", borderRadius: 6,
-  background: active ? "#534AB7" : "#fff",
-  color: active ? "#fff" : "#1a1a18",
+  fontSize: 12, fontWeight: 600, padding: "5px 12px", cursor: "pointer",
+  border: active ? "1px solid #4F46B8" : "1px solid #e8e6e1", borderRadius: 7,
+  background: active ? "#4F46B8" : "#fff",
+  color: active ? "#fff" : "#1c1b1f",
+  transition: "background 0.15s ease, border-color 0.15s ease",
 });
