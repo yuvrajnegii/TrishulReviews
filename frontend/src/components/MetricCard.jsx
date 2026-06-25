@@ -1,11 +1,14 @@
+import { useTheme } from "../ThemeContext";
+
 export default function MetricCard({ value, label, color }) {
+  const { tokens } = useTheme();
   return (
     <div style={{
-      background: "#fff", borderRadius: 8, padding: "0.85rem 1.1rem",
-      textAlign: "center", border: "1px solid #e5e4dc", borderTop: `2.5px solid ${color}`,
+      background: tokens.surface, borderRadius: 12, padding: "0.95rem 1.1rem",
+      textAlign: "center", border: `1px solid ${tokens.border}`, borderTop: `2.5px solid ${color}`,
     }}>
-      <p style={{ fontSize: 28, fontWeight: 500, margin: 0, color: "#1a1a18", lineHeight: 1.1 }}>{value}</p>
-      <p style={{ fontSize: 12, color: "#888780", margin: "4px 0 0", textTransform: "capitalize" }}>{label}</p>
+      <p style={{ fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em", margin: 0, color: tokens.text, lineHeight: 1.1 }}>{value}</p>
+      <p style={{ fontSize: 12, color: tokens.textFaint, margin: "4px 0 0", textTransform: "capitalize" }}>{label}</p>
     </div>
   );
 }
