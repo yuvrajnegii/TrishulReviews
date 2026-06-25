@@ -8,32 +8,32 @@ import { API_BASE, THEME_TAGS, SENTIMENT_STYLE, THEME_STYLE, btnStyle } from "..
 
 const SENTIMENT_OPTIONS = ["positive", "neutral", "negative"];
 
-function HistoryRow({ row, onDelete, onView, onEdit }) {
+function HistoryRow({ row, onDelete, onView, onEdit, tokens }) {
   const ss = SENTIMENT_STYLE[row.sentiment] || SENTIMENT_STYLE.neutral;
   const ts = THEME_STYLE[row.theme] || THEME_STYLE.experience;
   return (
-    <tr style={{ borderBottom: "1px solid #f0efe8", verticalAlign: "top" }}>
-      <td style={{ padding: "10px 12px", fontSize: 12, color: "#888780", paddingTop: 14, whiteSpace: "nowrap" }}>{row.created_at}</td>
-      <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: "#1a1a18", lineHeight: 1.6, maxWidth: 260 }}>{row.review_text}</td>
+    <tr style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top" }}>
+      <td style={{ padding: "10px 12px", fontSize: 12, color: tokens.textFaint, paddingTop: 14, whiteSpace: "nowrap" }}>{row.created_at}</td>
+      <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.6, maxWidth: 260 }}>{row.review_text}</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={ss} label={ss.label} /></td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={{ bg: ts.bg, text: ts.text, border: ts.bg }} label={ts.label} /></td>
-      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: "#888780", fontStyle: "italic", lineHeight: 1.6, maxWidth: 200 }}>"{row.response}"</td>
+      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: tokens.textFaint, fontStyle: "italic", lineHeight: 1.6, maxWidth: 200 }}>"{row.response}"</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 12, whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => onView(row.id)} style={{
-            fontSize: 11, padding: "3px 8px", cursor: "pointer",
-            border: "1px solid #f0efe8", borderRadius: 6,
-            background: "#fff", color: "#534AB7",
+            fontSize: 11, fontWeight: 600, padding: "3px 8px", cursor: "pointer",
+            border: `1px solid ${tokens.border}`, borderRadius: 6,
+            background: tokens.surface, color: tokens.accent,
           }}>View</button>
           <button onClick={() => onEdit(row)} style={{
-            fontSize: 11, padding: "3px 8px", cursor: "pointer",
-            border: "1px solid #f0efe8", borderRadius: 6,
-            background: "#fff", color: "#633806",
+            fontSize: 11, fontWeight: 600, padding: "3px 8px", cursor: "pointer",
+            border: `1px solid ${tokens.border}`, borderRadius: 6,
+            background: tokens.surface, color: "#B98B2E",
           }}>Edit</button>
           <button onClick={() => onDelete(row.id)} style={{
-            fontSize: 11, padding: "3px 8px", cursor: "pointer",
-            border: "1px solid #f0efe8", borderRadius: 6,
-            background: "#fff", color: "#a32d2d",
+            fontSize: 11, fontWeight: 600, padding: "3px 8px", cursor: "pointer",
+            border: `1px solid ${tokens.border}`, borderRadius: 6,
+            background: tokens.surface, color: tokens.danger,
           }}>Delete</button>
         </div>
       </td>
@@ -185,24 +185,24 @@ export default function History() {
   useEffect(() => { fetchHistory(); }, []);
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f5f4" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: tokens.bg }}>
       <Navbar />
 
-      <main style={{ maxWidth: 960, margin: "0 auto", padding: "2rem 1.5rem", width: "100%", boxSizing: "border-box", flex: 1 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 0.75rem", color: "#1a1a18" }}>History</h1>
+      <main style={{ maxWidth: 960, margin: "0 auto", padding: "2.25rem 1.5rem", width: "100%", boxSizing: "border-box", flex: 1 }}>
+        <h1 style={{ fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em", margin: "0 0 0.75rem", color: tokens.text }}>History</h1>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: 8 }}>
-          <p style={{ fontSize: 13, color: "#5f5e5a", margin: 0 }}>All past classified reviews stored in the database.</p>
+          <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: 0 }}>All past classified reviews stored in the database.</p>
           <button onClick={fetchHistory} style={btnStyle(false)}>Refresh</button>
         </div>
 
         {/* ── Search / filter bar — GET /history/search ─────────────────── */}
-        <div style={{ background: "#fff", border: "1px solid #e5e4dc", borderRadius: 12, padding: "12px 14px", marginBottom: "1.25rem", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <select value={searchSentiment} onChange={e => setSearchSentiment(e.target.value)} style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #e5e4dc", borderRadius: 6, background: "#fff", color: "#1a1a18" }}>
+        <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: "1.25rem", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <select value={searchSentiment} onChange={e => setSearchSentiment(e.target.value)} style={{ fontSize: 12, padding: "5px 8px", border: `1px solid ${tokens.border}`, borderRadius: 6, background: tokens.surface, color: tokens.text }}>
             <option value="">Any sentiment</option>
             {SENTIMENT_OPTIONS.map(s => <option key={s} value={s}>{SENTIMENT_STYLE[s].label}</option>)}
           </select>
-          <select value={searchTheme} onChange={e => setSearchTheme(e.target.value)} style={{ fontSize: 12, padding: "5px 8px", border: "1px solid #e5e4dc", borderRadius: 6, background: "#fff", color: "#1a1a18" }}>
+          <select value={searchTheme} onChange={e => setSearchTheme(e.target.value)} style={{ fontSize: 12, padding: "5px 8px", border: `1px solid ${tokens.border}`, borderRadius: 6, background: tokens.surface, color: tokens.text }}>
             <option value="">Any theme</option>
             {THEME_TAGS.map(t => <option key={t} value={t}>{THEME_STYLE[t].label}</option>)}
           </select>
@@ -210,31 +210,31 @@ export default function History() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Keyword in review text…"
-            style={{ fontSize: 12, padding: "6px 10px", border: "1px solid #e5e4dc", borderRadius: 6, flex: 1, minWidth: 160, background: "#fff", color: "#1a1a18" }}
+            style={{ fontSize: 12, padding: "6px 10px", border: `1px solid ${tokens.border}`, borderRadius: 6, flex: 1, minWidth: 160, background: tokens.surface, color: tokens.text }}
           />
           <button onClick={handleSearch} style={btnStyle(true)}>Search</button>
           {isFiltered && <button onClick={handleClearSearch} style={btnStyle(false)}>Clear filters</button>}
         </div>
 
-        {historyLoading && <p style={{ fontSize: 13, color: "#888780" }}>Loading history…</p>}
-        {historyError && <p style={{ fontSize: 13, color: "#a32d2d" }}>{historyError}</p>}
+        {historyLoading && <p style={{ fontSize: 13, color: tokens.textFaint }}>Loading history…</p>}
+        {historyError && <p style={{ fontSize: 13, color: tokens.danger }}>{historyError}</p>}
 
         {!historyLoading && history.length === 0 && !historyError && (
-          <div style={{ background: "#fff", border: "1px solid #e5e4dc", borderRadius: 12, padding: "3rem", textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "#888780", margin: 0 }}>
+          <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "3rem", textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: tokens.textFaint, margin: 0 }}>
               {isFiltered ? "No reviews match these filters." : "No reviews classified yet. Go to the Classify page to get started."}
             </p>
           </div>
         )}
 
         {history.length > 0 && (
-          <div style={{ background: "#fff", border: "1px solid #e5e4dc", borderRadius: 12, overflow: "hidden" }}>
+          <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, overflow: "hidden" }}>
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: "#fafaf8", borderBottom: "1px solid #e5e4dc" }}>
+                  <tr style={{ background: tokens.surfaceMuted, borderBottom: `1px solid ${tokens.border}` }}>
                     {["Date", "Review", "Sentiment", "Theme", "Suggested response", ""].map(h => (
-                      <th key={h} style={{ textAlign: "left", padding: "9px 12px 9px 0", fontSize: 11, fontWeight: 600, color: "#888780", letterSpacing: "0.04em", textTransform: "uppercase", ...(h === "Date" ? { paddingLeft: 12 } : {}), ...(h === "" ? { paddingRight: 12 } : {}) }}>
+                      <th key={h} style={{ textAlign: "left", padding: "9px 12px 9px 0", fontSize: 11, fontWeight: 600, color: tokens.textFaint, letterSpacing: "0.04em", textTransform: "uppercase", ...(h === "Date" ? { paddingLeft: 12 } : {}), ...(h === "" ? { paddingRight: 12 } : {}) }}>
                         {h}
                       </th>
                     ))}
@@ -242,7 +242,7 @@ export default function History() {
                 </thead>
                 <tbody>
                   {history.map(row => (
-                    <HistoryRow key={row.id} row={row} onDelete={handleDelete} onView={handleView} onEdit={handleEdit} />
+                    <HistoryRow key={row.id} row={row} onDelete={handleDelete} onView={handleView} onEdit={handleEdit} tokens={tokens} />
                   ))}
                 </tbody>
               </table>
