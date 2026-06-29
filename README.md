@@ -74,32 +74,6 @@ This creates two tables:
 - **`users`** — stores account credentials (name, email, hashed password)
 - **`reviews`** — stores classified guest reviews (text, sentiment, theme, suggested response)
 
-## 🗄️ Database
-
-**Choice: PostgreSQL**
-
-PostgreSQL was chosen because the data is structured and relational — users and reviews have fixed, well-defined schemas. SQL filtering maps naturally to the search/filter requirements (by sentiment, theme, and keyword), and PostgreSQL integrates cleanly with FastAPI via `psycopg2`.
-
-### Schema Diagram
-
-![Schema Diagram](https://raw.githubusercontent.com/yuvrajnegii/TrishulReviews/main/W5_SchemaDiagram_TBI-26100259.png)
-
-### Set up the database
-
-**Prerequisites:** PostgreSQL installed and running locally.
-
-```bash
-# 1. Create the database
-createdb guestlens
-
-# 2. Run the schema file to create tables
-psql -U postgres -d guestlens -f backend/schema.sql
-```
-
-This creates two tables:
-- **`users`** — stores account credentials (name, email, hashed password)
-- **`reviews`** — stores classified guest reviews (text, sentiment, theme, suggested response)
-
 ## 🚀 Getting Started
 
 ### How to run backend locally
