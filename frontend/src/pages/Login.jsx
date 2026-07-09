@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import { Input, Button } from "../components/ui";
@@ -7,6 +8,7 @@ import { API_BASE } from "../constants";
 export default function Login({ onSwitchToSignup }) {
   const { tokens } = useTheme();
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,6 +28,7 @@ export default function Login({ onSwitchToSignup }) {
     setLoading(true);
     try {
       await login({ email: email.trim(), password });
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Could not log in. Please try again.");
     }
