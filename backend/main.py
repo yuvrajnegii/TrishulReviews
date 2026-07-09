@@ -12,10 +12,19 @@ import jwt
 import datetime
 from dotenv import load_dotenv
 from groq import Groq
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+import httpx
+from fastapi.responses import RedirectResponse
 
 load_dotenv()
 
 app = FastAPI()
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,6 +41,11 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 JWT_SECRET = os.getenv("JWT_SECRET", "guestlens-dev-secret-change-me")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24 * 7  # tokens are valid for 7 days
+
+GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_REDIRECT_URI  = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/google/callback")
+FRONTEND_URL         = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST", "localhost"),
@@ -160,7 +174,8 @@ class UpdateReviewRequest(BaseModel):
 # ── Routes ─────────────────────────────────────────────────────────────────
 
 @app.post("/signup", status_code=201)
-def signup(body: SignupRequest):
+@limiter.limit("5/minute")
+def signup(request: Request, body: SignupRequest):
     name = body.name.strip()
     email = body.email.lower().strip()
     password = body.password
@@ -200,7 +215,8 @@ def signup(body: SignupRequest):
 
 
 @app.post("/login")
-def login(body: LoginRequest):
+@limiter.limit("5/minute")
+def login(request: Request, body: LoginRequest):
     email = body.email.lower().strip()
     password = body.password
 
@@ -409,6 +425,86 @@ def delete_review(review_id: int):
     return {"deleted": review_id}
 
 
+@app.get("/auth/google")
+def google_login():
+    """Redirect the user to Google's OAuth consent screen."""
+    params = {
+        "client_id":     GOOGLE_CLIENT_ID,
+        "redirect_uri":  GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope":         "openid email profile",
+        "access_type":   "offline",
+    }
+    query = "&".join(f"{k}={v}" for k, v in params.items())
+    return RedirectResponse(f"https://accounts.google.com/o/oauth2/v2/auth?{query}")
+
+
+@app.get("/auth/google/callback")
+async def google_callback(code: str):
+    """Google redirects here after the user consents.
+    Exchange the code for tokens, fetch the user's profile,
+    create or find the user in the DB, and redirect to the frontend with a JWT."""
+
+    # 1. Exchange code for access token
+    async with httpx.AsyncClient() as client:
+        token_res = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code":          code,
+                "client_id":     GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri":  GOOGLE_REDIRECT_URI,
+                "grant_type":    "authorization_code",
+            },
+        )
+        token_data = token_res.json()
+
+    access_token = token_data.get("access_token")
+    if not access_token:
+        raise HTTPException(status_code=400, detail="Failed to get access token from Google")
+
+    # 2. Fetch user profile from Google
+    async with httpx.AsyncClient() as client:
+        profile_res = await client.get(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        profile = profile_res.json()
+
+    email = profile.get("email", "").lower().strip()
+    name  = profile.get("name", email.split("@")[0])
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Could not retrieve email from Google")
+
+    # 3. Find or create the user in the database
+    try:
+        conn = get_db()
+        cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        cur.execute("SELECT id, name, email FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+
+        if not user:
+            cur.execute(
+                "INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s) RETURNING id, name, email",
+                (name, email, "oauth_google"),
+            )
+            user = cur.fetchone()
+            conn.commit()
+
+        cur.close()
+        conn.close()
+    except psycopg2.Error:
+        raise DatabaseError("Could not complete Google login due to a database error")
+
+    # 4. Create a JWT and redirect to the frontend
+    token = create_token(user["id"], user["email"])
+    return RedirectResponse(
+        f"{FRONTEND_URL}/oauth/callback?token={token}&name={user['name']}&email={user['email']}&id={user['id']}"
+    )
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "message": "GuestLens backend is running"}
@@ -416,4 +512,4 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
