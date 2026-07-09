@@ -6,3 +6,5 @@ bcrypt
 pyjwt
 email-validator
 python-dotenv
+slowapi
+httpx
