@@ -1,12 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import { useTheme } from "../ThemeContext";
 
 export default function OAuthCallback() {
-  const { loginWithToken } = useAuth();
+  const { loginWithToken, isAuthenticated } = useAuth();
   const { tokens } = useTheme();
   const navigate = useNavigate();
+  const [tried, setTried] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -17,11 +18,17 @@ export default function OAuthCallback() {
 
     if (token && name && email && id) {
       loginWithToken({ token, user: { id: Number(id), name, email } });
-      navigate("/", { replace: true });
+      setTried(true);
     } else {
       navigate("/login", { replace: true });
     }
   }, []);
+
+  useEffect(() => {
+    if (tried && isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [tried, isAuthenticated]);
 
   return (
     <div style={{
