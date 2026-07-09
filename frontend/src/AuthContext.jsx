@@ -6,8 +6,6 @@ const AuthContext = createContext(null);
 const STORAGE_KEY = "guestlens_auth";
 
 export function AuthProvider({ children }) {
-  // Hydrate synchronously from localStorage so we don't flash the login
-  // screen for a logged-in user on page refresh.
   const [auth, setAuth] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -49,6 +47,11 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  // Used by the OAuth callback page to set auth from URL params
+  function loginWithToken(data) {
+    setAuth(data);
+  }
+
   function logout() {
     setAuth(null);
   }
@@ -61,6 +64,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!auth?.token,
         signup,
         login,
+        loginWithToken,
         logout,
       }}
     >
@@ -69,7 +73,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-/** useAuth() → { user, token, isAuthenticated, signup, login, logout } */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside an <AuthProvider>");
