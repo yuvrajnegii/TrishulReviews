@@ -115,4 +115,5 @@ Stayed for two nights. The location is beautiful and peaceful but the wifi was v
 
 ## Which Prompt Worked Best and Why
 
+
 **Variation 3** performed best. The explicit instruction to return *only* a JSON object with no markdown, combined with strict enumeration of allowed values for each field, significantly reduced hallucinations and format errors. The addition of post-processing to strip markdown code fences handled the remaining edge cases where the model still wrapped its output. Compared to Variation 1, which lacked structure, and Variation 2, which was mostly reliable but prone to occasional formatting issues, Variation 3 produced consistent, parseable output across all test inputs including multi-topic and ambiguous reviews.
