@@ -123,7 +123,20 @@ export default function Classify() {
           >
             {loading ? "Classifying…" : `Classify ${reviews.length || ""} review${reviews.length !== 1 ? "s" : ""}`}
           </button>
-          {loading && <span style={{ fontSize: 13, color: tokens.textFaint }}>Calling backend…</span>}
+
+          {loading && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <style>{`@keyframes rotate { to { transform: rotate(360deg); } }`}</style>
+              <div style={{
+                width: 18, height: 18, borderRadius: "50%",
+                border: `2.5px solid ${tokens.border}`,
+                borderTopColor: tokens.accent,
+                animation: "rotate 0.8s linear infinite",
+              }} />
+              <span style={{ fontSize: 13, color: tokens.textFaint }}>Classifying reviews…</span>
+            </div>
+          )}
+
           {error && <span style={{ fontSize: 13, color: tokens.danger }}>{error}</span>}
         </div>
 
