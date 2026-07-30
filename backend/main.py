@@ -26,26 +26,35 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# ── CORS ───────────────────────────────────────────────────────────────────
+# In production, FRONTEND_URL is set to the Vercel URL in the Render dashboard.
+# Locally it defaults to localhost:5173.
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    FRONTEND_URL,
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 # ── CONFIG ─────────────────────────────────────────────────────────────────
-# All secrets are read from environment variables (see .env.example).
-# Copy .env.example to .env and fill in your real values — .env is gitignored.
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 JWT_SECRET = os.getenv("JWT_SECRET", "guestlens-dev-secret-change-me")
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRY_HOURS = 24 * 7  # tokens are valid for 7 days
+JWT_EXPIRY_HOURS = 24 * 7
 
 GOOGLE_CLIENT_ID     = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI  = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8000/auth/google/callback")
-FRONTEND_URL         = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST", "localhost"),
@@ -76,10 +85,8 @@ def call_groq(system_prompt, user_prompt):
 def hash_password(plain_password: str) -> str:
     return bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-
 def verify_password(plain_password: str, password_hash: str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), password_hash.encode("utf-8"))
-
 
 def create_token(user_id: int, email: str) -> str:
     payload = {
@@ -89,10 +96,7 @@ def create_token(user_id: int, email: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
-
 def get_current_user(authorization: str = Header(default=None)):
-    """Reads the 'Authorization: Bearer <token>' header and returns the user payload.
-    Raises 401 if the token is missing, invalid, or expired."""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
     token = authorization.split(" ", 1)[1]
@@ -106,65 +110,46 @@ def get_current_user(authorization: str = Header(default=None)):
 
 # ── Custom Exceptions ──────────────────────────────────────────────────────
 class DatabaseError(Exception):
-    """Raised when a database operation fails unexpectedly."""
     def __init__(self, message: str = "A database error occurred"):
         self.message = message
 
-
 class NotFoundError(Exception):
-    """Raised when a requested resource does not exist."""
     def __init__(self, message: str = "Resource not found"):
         self.message = message
 
-
 # ── Centralized Exception Handlers ────────────────────────────────────────
-# These replace scattered try/except blocks in each route: any route can
-# simply `raise NotFoundError(...)` / `raise DatabaseError(...)` and the
-# response shape stays consistent across the whole API.
-
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={"error": "Validation failed", "details": exc.errors()},
-    )
-
+    return JSONResponse(status_code=422, content={"error": "Validation failed", "details": exc.errors()})
 
 @app.exception_handler(NotFoundError)
 async def not_found_exception_handler(request: Request, exc: NotFoundError):
     return JSONResponse(status_code=404, content={"error": exc.message})
 
-
 @app.exception_handler(DatabaseError)
 async def database_exception_handler(request: Request, exc: DatabaseError):
     return JSONResponse(status_code=500, content={"error": exc.message})
-
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
 
-
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"error": "Internal server error"})
 
-
 # ── Schemas ────────────────────────────────────────────────────────────────
 class ClassifyRequest(BaseModel):
     reviews: list[str]
-
 
 class SignupRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
 
-
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-
 
 class UpdateReviewRequest(BaseModel):
     sentiment: str | None = None
@@ -172,7 +157,6 @@ class UpdateReviewRequest(BaseModel):
     response: str | None = None
 
 # ── Routes ─────────────────────────────────────────────────────────────────
-
 @app.post("/signup", status_code=201)
 @limiter.limit("5/minute")
 def signup(request: Request, body: SignupRequest):
@@ -188,7 +172,6 @@ def signup(request: Request, body: SignupRequest):
     try:
         conn = get_db()
         cur = conn.cursor()
-
         cur.execute("SELECT id FROM users WHERE email = %s", (email,))
         if cur.fetchone():
             cur.close()
@@ -283,8 +266,7 @@ Each element must have exactly these keys:
                 "response":  "Thank you for your feedback."
             }
             cur.execute(
-                """INSERT INTO reviews (review_text, sentiment, theme, response)
-                   VALUES (%s, %s, %s, %s)""",
+                "INSERT INTO reviews (review_text, sentiment, theme, response) VALUES (%s, %s, %s, %s)",
                 (review_text, item["sentiment"], item["theme"], item["response"])
             )
         conn.commit()
@@ -318,9 +300,6 @@ def history():
 
 @app.get("/history/search")
 def search_history(sentiment: str | None = None, theme: str | None = None, q: str | None = None):
-    """Filter reviews by sentiment, theme, and/or a keyword in the review text.
-    All parameters are optional and combine with AND. Example:
-    /history/search?sentiment=negative&theme=cleanliness&q=mattress"""
     conditions = []
     params = []
 
@@ -363,8 +342,7 @@ def get_review(review_id: int):
         cur.execute("""
             SELECT id, review_text, sentiment, theme, response,
                    TO_CHAR(created_at, 'DD Mon YYYY, HH24:MI') AS created_at
-            FROM reviews
-            WHERE id = %s
+            FROM reviews WHERE id = %s
         """, (review_id,))
         row = cur.fetchone()
         cur.close()
@@ -427,7 +405,6 @@ def delete_review(review_id: int):
 
 @app.get("/auth/google")
 def google_login():
-    """Redirect the user to Google's OAuth consent screen."""
     params = {
         "client_id":     GOOGLE_CLIENT_ID,
         "redirect_uri":  GOOGLE_REDIRECT_URI,
@@ -441,11 +418,6 @@ def google_login():
 
 @app.get("/auth/google/callback")
 async def google_callback(code: str):
-    """Google redirects here after the user consents.
-    Exchange the code for tokens, fetch the user's profile,
-    create or find the user in the DB, and redirect to the frontend with a JWT."""
-
-    # 1. Exchange code for access token
     async with httpx.AsyncClient() as client:
         token_res = await client.post(
             "https://oauth2.googleapis.com/token",
@@ -463,7 +435,6 @@ async def google_callback(code: str):
     if not access_token:
         raise HTTPException(status_code=400, detail="Failed to get access token from Google")
 
-    # 2. Fetch user profile from Google
     async with httpx.AsyncClient() as client:
         profile_res = await client.get(
             "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -477,11 +448,9 @@ async def google_callback(code: str):
     if not email:
         raise HTTPException(status_code=400, detail="Could not retrieve email from Google")
 
-    # 3. Find or create the user in the database
     try:
         conn = get_db()
         cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
         cur.execute("SELECT id, name, email FROM users WHERE email = %s", (email,))
         user = cur.fetchone()
 
@@ -498,7 +467,6 @@ async def google_callback(code: str):
     except psycopg2.Error:
         raise DatabaseError("Could not complete Google login due to a database error")
 
-    # 4. Create a JWT and redirect to the frontend
     token = create_token(user["id"], user["email"])
     return RedirectResponse(
         f"{FRONTEND_URL}/oauth/callback?token={token}&name={user['name']}&email={user['email']}&id={user['id']}"
