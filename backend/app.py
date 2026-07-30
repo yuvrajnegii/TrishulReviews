@@ -62,14 +62,14 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME", "guestlens"),
     "user":     os.getenv("DB_USER", "postgres"),
     "password": os.getenv("DB_PASSWORD", ""),
-    "sslmode":  os.getenv("DB_SSLMODE", "disable"),
 }
 
 client = Groq(api_key=GROQ_API_KEY)
 
 # ── DB Helper ──────────────────────────────────────────────────────────────
 def get_db():
-    return psycopg2.connect(**DB_CONFIG)
+    sslmode = os.getenv("DB_SSLMODE", "disable")
+    return psycopg2.connect(**DB_CONFIG, sslmode=sslmode)
 
 # ── Groq Helper ─────────────────────────────────────────────────────────────
 def call_groq(system_prompt, user_prompt):
