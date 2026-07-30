@@ -62,6 +62,7 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME", "guestlens"),
     "user":     os.getenv("DB_USER", "postgres"),
     "password": os.getenv("DB_PASSWORD", ""),
+    "sslmode":  os.getenv("DB_SSLMODE", "disable"),
 }
 
 client = Groq(api_key=GROQ_API_KEY)
