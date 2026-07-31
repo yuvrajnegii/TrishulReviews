@@ -43,20 +43,14 @@ const FEATURES = [
   },
 ];
 
-function StatCard({ label, value, color, icon, tokens }) {
+function StatCard({ label, value, color, tokens }) {
   return (
     <div style={{
       background: tokens.surface, border: `1px solid ${tokens.border}`,
       borderRadius: 14, padding: "1.25rem 1.5rem",
-      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
     }}>
-      <div>
-        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.3rem" }}>{label}</p>
-        <p style={{ fontSize: 28, fontWeight: 700, color: color || tokens.text, margin: 0, letterSpacing: "-0.02em" }}>{value}</p>
-      </div>
-      <div style={{ width: 40, height: 40, borderRadius: 10, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <span style={{ color, fontSize: 18 }}>{icon}</span>
-      </div>
+      <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.3rem" }}>{label}</p>
+      <p style={{ fontSize: 28, fontWeight: 700, color: color || tokens.text, margin: 0, letterSpacing: "-0.02em" }}>{value}</p>
     </div>
   );
 }
@@ -127,10 +121,10 @@ export default function Home() {
             <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>Live stats</p>
             <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 1.25rem", textAlign: "center" }}>Review intelligence at a glance</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.875rem", marginBottom: "1.25rem" }}>
-              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" icon="📋" tokens={tokens} />
-              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" icon="😊" tokens={tokens} />
-              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" icon="😐" tokens={tokens} />
-              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" icon="😞" tokens={tokens} />
+              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" tokens={tokens} />
+              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" tokens={tokens} />
+              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" tokens={tokens} />
+              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" tokens={tokens} />
             </div>
 
             {insight && (
