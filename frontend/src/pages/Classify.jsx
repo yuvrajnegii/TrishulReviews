@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useAuth } from "../AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Badge from "../components/Badge";
@@ -22,6 +23,7 @@ function ResultRow({ review, index, tokens }) {
 
 export default function Classify() {
   const { tokens } = useTheme();
+  const { token } = useAuth();
   const [input, setInput] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function Classify() {
     try {
       const res = await fetch(`${API_BASE}/classify`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ reviews }),
       });
       const data = await res.json();
