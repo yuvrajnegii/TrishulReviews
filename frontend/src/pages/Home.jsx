@@ -4,7 +4,8 @@ import Hero from "../components/Hero";
 import Card from "../components/Card";
 import Footer from "../components/Footer";
 import { useTheme } from "../ThemeContext";
-import { API_BASE, SENTIMENT_STYLE, THEME_STYLE } from "../constants";
+import { useAuth } from "../AuthContext";
+import { API_BASE, THEME_STYLE } from "../constants";
 
 const FEATURES = [
   {
@@ -47,8 +48,7 @@ function StatCard({ label, value, color, icon, tokens }) {
     <div style={{
       background: tokens.surface, border: `1px solid ${tokens.border}`,
       borderRadius: 14, padding: "1.25rem 1.5rem",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      gap: 12,
+      display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
     }}>
       <div>
         <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.3rem" }}>{label}</p>
@@ -61,7 +61,7 @@ function StatCard({ label, value, color, icon, tokens }) {
   );
 }
 
-function TopicBar({ label, count, total, color, tokens }) {
+function TopicBar({ label, count, total, tokens }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
     <div style={{ marginBottom: 12 }}>
@@ -70,7 +70,7 @@ function TopicBar({ label, count, total, color, tokens }) {
         <span style={{ fontSize: 12, color: tokens.textFaint }}>{count} reviews</span>
       </div>
       <div style={{ height: 7, background: tokens.border, borderRadius: 4, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 4, transition: "width 0.6s ease" }} />
+        <div style={{ height: "100%", width: `${pct}%`, background: "#4F46B8", borderRadius: 4, transition: "width 0.6s ease" }} />
       </div>
     </div>
   );
@@ -78,44 +78,39 @@ function TopicBar({ label, count, total, color, tokens }) {
 
 export default function Home() {
   const { tokens } = useTheme();
+  const { token } = useAuth();
   const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!token) return;
     async function fetchStats() {
       try {
-        const res = await fetch(`${API_BASE}/history`);
+        const res = await fetch(`${API_BASE}/history`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
         if (!res.ok) return;
         const reviews = data.history || [];
-
         const counts = { positive: 0, neutral: 0, negative: 0 };
         const themes = {};
         reviews.forEach(r => {
           counts[r.sentiment] = (counts[r.sentiment] || 0) + 1;
           themes[r.theme] = (themes[r.theme] || 0) + 1;
         });
-
         setStats({ total: reviews.length, counts, themes });
       } catch (e) {
         // silently fail
-      } finally {
-        setLoading(false);
       }
     }
     fetchStats();
-  }, []);
+  }, [token]);
 
-  const topThemes = stats
-    ? Object.entries(stats.themes).sort((a, b) => b[1] - a[1]).slice(0, 5)
-    : [];
+  const topThemes = stats ? Object.entries(stats.themes).sort((a, b) => b[1] - a[1]).slice(0, 5) : [];
 
-  // AI insight — derived from data
   const insight = stats && stats.total > 0
     ? (() => {
-        const top = Object.entries(stats.counts).sort((a, b) => b[1] - a[1])[0];
-        const topTheme = Object.entries(stats.themes).sort((a, b) => b[1] - a[1])[0];
         const pct = Math.round((stats.counts.positive / stats.total) * 100);
+        const topTheme = Object.entries(stats.themes).sort((a, b) => b[1] - a[1])[0];
         return `${pct}% of all reviews are positive. ${topTheme ? `"${THEME_STYLE[topTheme[0]]?.label || topTheme[0]}" is the most discussed topic with ${topTheme[1]} reviews.` : ""}`;
       })()
     : null;
@@ -127,29 +122,19 @@ export default function Home() {
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "3rem 1.5rem", width: "100%", boxSizing: "border-box" }}>
 
-        {/* ── Metric Cards ─────────────────────────────────────────────── */}
-        {!loading && stats && stats.total > 0 && (
+        {stats && stats.total > 0 && (
           <section style={{ marginBottom: "3rem" }}>
-            <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>
-              Live stats
-            </p>
-            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 1.25rem", textAlign: "center" }}>
-              Review intelligence at a glance
-            </h2>
+            <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>Live stats</p>
+            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 1.25rem", textAlign: "center" }}>Review intelligence at a glance</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.875rem", marginBottom: "1.25rem" }}>
-              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" tokens={tokens} />
-              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" tokens={tokens} />
-              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" tokens={tokens} />
-              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" tokens={tokens} />
+              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" icon="📋" tokens={tokens} />
+              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" icon="😊" tokens={tokens} />
+              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" icon="😐" tokens={tokens} />
+              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" icon="😞" tokens={tokens} />
             </div>
 
-            {/* AI Insight card */}
             {insight && (
-              <div style={{
-                background: tokens.accentSoft, border: `1px solid ${tokens.accent}30`,
-                borderRadius: 12, padding: "0.875rem 1.25rem",
-                display: "flex", alignItems: "flex-start", gap: 10, marginBottom: "1.5rem",
-              }}>
+              <div style={{ background: tokens.accentSoft, border: `1px solid ${tokens.accent}30`, borderRadius: 12, padding: "0.875rem 1.25rem", display: "flex", alignItems: "flex-start", gap: 10, marginBottom: "1.5rem" }}>
                 <span style={{ fontSize: 16, flexShrink: 0 }}>✨</span>
                 <p style={{ fontSize: 13, color: tokens.accent, margin: 0, fontWeight: 500, lineHeight: 1.6 }}>
                   <strong>AI Insight:</strong> {insight}
@@ -157,32 +142,19 @@ export default function Home() {
               </div>
             )}
 
-            {/* Topic performance bars */}
             {topThemes.length > 0 && (
               <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "1.25rem 1.5rem" }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: tokens.text, margin: "0 0 1rem" }}>Topic breakdown</p>
                 {topThemes.map(([theme, count]) => (
-                  <TopicBar
-                    key={theme}
-                    label={THEME_STYLE[theme]?.label || theme}
-                    count={count}
-                    total={stats.total}
-                    color={THEME_STYLE[theme]?.bg ? "#4F46B8" : "#4F46B8"}
-                    tokens={tokens}
-                  />
+                  <TopicBar key={theme} label={THEME_STYLE[theme]?.label || theme} count={count} total={stats.total} tokens={tokens} />
                 ))}
               </div>
             )}
           </section>
         )}
 
-        {/* ── Features section ─────────────────────────────────────────── */}
-        <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>
-          How it helps
-        </p>
-        <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 2rem", textAlign: "center" }}>
-          From raw feedback to action, in seconds
-        </h2>
+        <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>How it helps</p>
+        <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 2rem", textAlign: "center" }}>From raw feedback to action, in seconds</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
           {FEATURES.map(f => (
             <Card key={f.title} icon={f.icon} title={f.title} description={f.description} accent={f.accent} />
