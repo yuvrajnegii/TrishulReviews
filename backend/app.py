@@ -26,9 +26,6 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── CORS ───────────────────────────────────────────────────────────────────
-# In production, FRONTEND_URL is set to the Vercel URL in the Render dashboard.
-# Locally it defaults to localhost:5173.
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 allowed_origins = [
@@ -45,9 +42,7 @@ app.add_middleware(
     allow_credentials=True,
 )
 
-# ── CONFIG ─────────────────────────────────────────────────────────────────
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
 JWT_SECRET = os.getenv("JWT_SECRET", "guestlens-dev-secret-change-me")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24 * 7
@@ -62,16 +57,14 @@ DB_CONFIG = {
     "database": os.getenv("DB_NAME", "guestlens"),
     "user":     os.getenv("DB_USER", "postgres"),
     "password": os.getenv("DB_PASSWORD", ""),
-    "sslmode":  os.getenv("DB_SSLMODE", "disable"),
 }
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# ── DB Helper ──────────────────────────────────────────────────────────────
 def get_db():
-    return psycopg2.connect(**DB_CONFIG)
+    sslmode = os.getenv("DB_SSLMODE", "disable")
+    return psycopg2.connect(**DB_CONFIG, sslmode=sslmode)
 
-# ── Groq Helper ─────────────────────────────────────────────────────────────
 def call_groq(system_prompt, user_prompt):
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -82,7 +75,6 @@ def call_groq(system_prompt, user_prompt):
     )
     return response.choices[0].message.content
 
-# ── Auth Helpers ───────────────────────────────────────────────────────────
 def hash_password(plain_password: str) -> str:
     return bcrypt.hashpw(plain_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -109,7 +101,6 @@ def get_current_user(authorization: str = Header(default=None)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ── Custom Exceptions ──────────────────────────────────────────────────────
 class DatabaseError(Exception):
     def __init__(self, message: str = "A database error occurred"):
         self.message = message
@@ -118,7 +109,6 @@ class NotFoundError(Exception):
     def __init__(self, message: str = "Resource not found"):
         self.message = message
 
-# ── Centralized Exception Handlers ────────────────────────────────────────
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(status_code=422, content={"error": "Validation failed", "details": exc.errors()})
@@ -139,7 +129,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def generic_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"error": "Internal server error"})
 
-# ── Schemas ────────────────────────────────────────────────────────────────
 class ClassifyRequest(BaseModel):
     reviews: list[str]
 
@@ -157,7 +146,6 @@ class UpdateReviewRequest(BaseModel):
     theme: str | None = None
     response: str | None = None
 
-# ── Routes ─────────────────────────────────────────────────────────────────
 @app.post("/signup", status_code=201)
 @limiter.limit("5/minute")
 def signup(request: Request, body: SignupRequest):
@@ -230,7 +218,7 @@ def me(current_user: dict = Depends(get_current_user)):
 
 
 @app.post("/classify", status_code=201)
-def classify(body: ClassifyRequest):
+def classify(body: ClassifyRequest, current_user: dict = Depends(get_current_user)):
     reviews = body.reviews
     if not reviews:
         raise HTTPException(status_code=400, detail="No reviews provided")
@@ -280,7 +268,7 @@ Each element must have exactly these keys:
 
 
 @app.get("/history")
-def history():
+def history(current_user: dict = Depends(get_current_user)):
     try:
         conn = get_db()
         cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -300,7 +288,7 @@ def history():
 
 
 @app.get("/history/search")
-def search_history(sentiment: str | None = None, theme: str | None = None, q: str | None = None):
+def search_history(current_user: dict = Depends(get_current_user), sentiment: str | None = None, theme: str | None = None, q: str | None = None):
     conditions = []
     params = []
 
@@ -336,7 +324,7 @@ def search_history(sentiment: str | None = None, theme: str | None = None, q: st
 
 
 @app.get("/history/{review_id}")
-def get_review(review_id: int):
+def get_review(review_id: int, current_user: dict = Depends(get_current_user)):
     try:
         conn = get_db()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -357,7 +345,7 @@ def get_review(review_id: int):
 
 
 @app.patch("/history/{review_id}")
-def update_review(review_id: int, body: UpdateReviewRequest):
+def update_review(review_id: int, body: UpdateReviewRequest, current_user: dict = Depends(get_current_user)):
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
     if not updates:
         raise HTTPException(status_code=400, detail="No fields provided to update")
@@ -387,7 +375,7 @@ def update_review(review_id: int, body: UpdateReviewRequest):
 
 
 @app.delete("/history/{review_id}", status_code=200)
-def delete_review(review_id: int):
+def delete_review(review_id: int, current_user: dict = Depends(get_current_user)):
     try:
         conn = get_db()
         cur  = conn.cursor()
