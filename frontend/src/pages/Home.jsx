@@ -137,10 +137,10 @@ export default function Home() {
               Review intelligence at a glance
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.875rem", marginBottom: "1.25rem" }}>
-              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" icon="📋" tokens={tokens} />
-              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" icon="😊" tokens={tokens} />
-              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" icon="😐" tokens={tokens} />
-              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" icon="😞" tokens={tokens} />
+              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" tokens={tokens} />
+              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" tokens={tokens} />
+              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" tokens={tokens} />
+              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" tokens={tokens} />
             </div>
 
             {/* AI Insight card */}
