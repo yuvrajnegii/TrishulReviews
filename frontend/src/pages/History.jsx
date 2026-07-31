@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Badge from "../components/Badge";
@@ -51,6 +52,7 @@ function HistoryRow({ row, onDelete, onView, onEdit, tokens, isMobile }) {
 
 export default function History() {
   const { tokens } = useTheme();
+  const { token } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function History() {
     setHistoryLoading(true);
     setHistoryError("");
     try {
-      const res = await fetch(`${API_BASE}/history`);
+      const res = await fetch(`${API_BASE}/history`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load history.");
       setHistory(data.history);
@@ -104,7 +106,7 @@ export default function History() {
       if (searchSentiment) params.set("sentiment", searchSentiment);
       if (searchTheme) params.set("theme", searchTheme);
       if (searchQuery.trim()) params.set("q", searchQuery.trim());
-      const res = await fetch(`${API_BASE}/history/search?${params.toString()}`);
+      const res = await fetch(`${API_BASE}/history/search?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Search failed.");
       setHistory(data.history);
@@ -126,7 +128,7 @@ export default function History() {
 
   async function handleDelete(id) {
     try {
-      const res = await fetch(`${API_BASE}/history/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/history/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Delete failed.");
       setHistory(h => h.filter(r => r.id !== id));
@@ -141,7 +143,7 @@ export default function History() {
     setViewError("");
     setViewLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/history/${id}`);
+      const res = await fetch(`${API_BASE}/history/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load review.");
       setViewRow(data);
@@ -165,7 +167,7 @@ export default function History() {
     setEditError("");
     try {
       const res = await fetch(`${API_BASE}/history/${editRow.id}`, {
-        method: "PATCH",
+        method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sentiment: editSentiment, theme: editTheme, response: editResponse }),
       });
