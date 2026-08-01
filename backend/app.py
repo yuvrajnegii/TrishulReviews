@@ -274,7 +274,7 @@ def history(current_user: dict = Depends(get_current_user)):
         cur  = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""
             SELECT id, review_text, sentiment, theme, response,
-                   TO_CHAR(created_at, 'DD Mon YYYY, HH24:MI') AS created_at
+                   TO_CHAR(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata', 'DD Mon YYYY, HH24:MI') AS created_at
             FROM reviews
             ORDER BY created_at DESC
             LIMIT 100
@@ -309,7 +309,7 @@ def search_history(current_user: dict = Depends(get_current_user), sentiment: st
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute(f"""
             SELECT id, review_text, sentiment, theme, response,
-                   TO_CHAR(created_at, 'DD Mon YYYY, HH24:MI') AS created_at
+                   TO_CHAR(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata', 'DD Mon YYYY, HH24:MI') AS created_at
             FROM reviews
             {where_clause}
             ORDER BY created_at DESC
@@ -330,7 +330,7 @@ def get_review(review_id: int, current_user: dict = Depends(get_current_user)):
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""
             SELECT id, review_text, sentiment, theme, response,
-                   TO_CHAR(created_at, 'DD Mon YYYY, HH24:MI') AS created_at
+                   TO_CHAR(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata', 'DD Mon YYYY, HH24:MI') AS created_at
             FROM reviews WHERE id = %s
         """, (review_id,))
         row = cur.fetchone()
@@ -359,7 +359,7 @@ def update_review(review_id: int, body: UpdateReviewRequest, current_user: dict 
         cur.execute(
             f"""UPDATE reviews SET {set_clause} WHERE id = %s
                 RETURNING id, review_text, sentiment, theme, response,
-                          TO_CHAR(created_at, 'DD Mon YYYY, HH24:MI') AS created_at""",
+                          TO_CHAR(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata', 'DD Mon YYYY, HH24:MI') AS created_at""",
             params,
         )
         updated = cur.fetchone()
