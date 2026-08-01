@@ -76,7 +76,10 @@ export default function Home() {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setStats(null);
+      return;
+    }
     async function fetchStats() {
       try {
         const res = await fetch(`${API_BASE}/history`, {
@@ -129,6 +132,7 @@ export default function Home() {
 
             {insight && (
               <div style={{ background: tokens.accentSoft, border: `1px solid ${tokens.accent}30`, borderRadius: 12, padding: "0.875rem 1.25rem", display: "flex", alignItems: "flex-start", gap: 10, marginBottom: "1.5rem" }}>
+                <span style={{ fontSize: 16, flexShrink: 0 }}>✨</span>
                 <p style={{ fontSize: 13, color: tokens.accent, margin: 0, fontWeight: 500, lineHeight: 1.6 }}>
                   <strong>AI Insight:</strong> {insight}
                 </p>
