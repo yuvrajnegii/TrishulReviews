@@ -19,6 +19,8 @@ is gated behind user signup/login.
 - 📋 Review history with search/filter by sentiment, theme, or keyword
 - ✏️ Edit and delete previously classified reviews
 - 🌓 Light/dark theme toggle
+- 🔵 Google OAuth login
+- 📊 Live stats dashboard on home page
 
 ## 🛠️ Tech Stack
 
@@ -30,9 +32,22 @@ is gated behind user signup/login.
 **Backend**
 - 🐍 **Python**
 - 🚀 **FastAPI**
-- 🐘 **PostgreSQL**
+- 🐘 **PostgreSQL** (Neon in production)
 - 🔑 **JWT (PyJWT) + bcrypt** for authentication
 - 🧠 **Groq** for AI review classification
+- 🛡️ **slowapi** for rate limiting
+
+## 🌐 Live Deployment
+
+| | URL |
+|---|---|
+| **Frontend** | [https://trishul-reviews.vercel.app](https://trishul-reviews.vercel.app) |
+| **Backend** | [https://trishulreviews-api.onrender.com](https://trishulreviews-api.onrender.com) |
+
+### Known limitations on free tier
+- **Render** spins down after 15 minutes of inactivity — the first request after idle takes 30–60 seconds to wake up. Subsequent requests are fast.
+- **Neon** free tier has a compute limit of 191.9 hours/month — sufficient for development and demo use.
+- **Vercel** free tier has a bandwidth limit of 100GB/month — more than enough for this project.
 
 ## 📂 Project Structure
 
@@ -52,7 +67,7 @@ TrishulReviews/
 
 **Choice: PostgreSQL**
 
-PostgreSQL was chosen because the data is structured and relational — users and reviews have fixed, well-defined schemas. SQL filtering maps naturally to the search/filter requirements (by sentiment, theme, and keyword), and PostgreSQL integrates cleanly with FastAPI via `psycopg2`.
+PostgreSQL was chosen because the data is structured and relational — users and reviews have fixed, well-defined schemas. SQL filtering maps naturally to the search/filter requirements (by sentiment, theme, and keyword), and PostgreSQL integrates cleanly with FastAPI via `psycopg2`. In production, the database is hosted on **Neon** (serverless PostgreSQL).
 
 ### Schema Diagram
 
@@ -114,12 +129,14 @@ the app.
 | POST   | `/signup`              | Create a new user account                        | No             |
 | POST   | `/login`               | Authenticate and receive a session token          | No             |
 | GET    | `/me`                  | Get the currently authenticated user              | Yes            |
-| POST   | `/classify`            | Classify a batch of reviews and save them         | No             |
-| GET    | `/history`             | List the most recent reviews                      | No             |
-| GET    | `/history/search`      | Filter reviews by sentiment, theme, or keyword    | No             |
-| GET    | `/history/{id}`        | Get a single review by id                         | No             |
-| PATCH  | `/history/{id}`        | Update a review's sentiment/theme/response        | No             |
-| DELETE | `/history/{id}`        | Delete a review by id                             | No             |
+| POST   | `/classify`            | Classify a batch of reviews and save them         | Yes            |
+| GET    | `/history`             | List the most recent reviews                      | Yes            |
+| GET    | `/history/search`      | Filter reviews by sentiment, theme, or keyword    | Yes            |
+| GET    | `/history/{id}`        | Get a single review by id                         | Yes            |
+| PATCH  | `/history/{id}`        | Update a review's sentiment/theme/response        | Yes            |
+| DELETE | `/history/{id}`        | Delete a review by id                             | Yes            |
+| GET    | `/auth/google`         | Redirect to Google OAuth consent screen           | No             |
+| GET    | `/auth/google/callback`| Handle Google OAuth callback                      | No             |
 | GET    | `/health`              | Health check                                      | No             |
 
 All error responses follow the shape `{"error": "message"}` with an
