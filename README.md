@@ -71,7 +71,7 @@ PostgreSQL was chosen because the data is structured and relational — users an
 
 ### Schema Diagram
 
-![Schema Diagram](https://raw.githubusercontent.com/yuvrajnegii/TrishulReviews/main/W5_SchemaDiagram_TBI-26100259.png)
+![Schema Diagram](https://raw.githubusercontent.com/yuvrajnegii/TrishulReviews/main/assets/W5_SchemaDiagram_TBI-26100259.png)
 
 ### Set up the database
 
