@@ -128,7 +128,6 @@ export default function Classify() {
 
           {loading && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <style>{`@keyframes rotate { to { transform: rotate(360deg); } }`}</style>
               <div style={{
                 width: 18, height: 18, borderRadius: "50%",
                 border: `2.5px solid ${tokens.border}`,
