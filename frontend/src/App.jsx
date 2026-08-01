@@ -50,6 +50,7 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
+          <style>{`@keyframes rotate { to { transform: rotate(360deg); } }`}</style>
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>
