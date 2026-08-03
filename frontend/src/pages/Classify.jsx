@@ -35,12 +35,13 @@ export default function Classify() {
   const reviews = input.split("\n").map(r => r.trim()).filter(Boolean);
 
   async function handleClassify() {
-    if (!reviews.length || loading) return;
+     if (!reviews.length || loading) return;
     setLoading(true);
     setError("");
     setResults([]);
     setFilterSentiment("all");
     setFilterTheme("all");
+    await new Promise(r => setTimeout(r, 3000)); // temporary 3 second delay
     try {
       const res = await fetch(`${API_BASE}/classify`, {
         method: "POST",
