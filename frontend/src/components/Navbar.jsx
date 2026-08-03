@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import { Button } from "./ui";
-import { API_BASE } from "../constants";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -14,24 +12,7 @@ const LINKS = [
 
 export default function Navbar() {
   const { mode, toggle, tokens } = useTheme();
-  const { user, logout, token } = useAuth();
-  const [reviewCount, setReviewCount] = useState(null);
-
-  useEffect(() => {
-    if (!token) { setReviewCount(null); return; }
-    async function fetchCount() {
-      try {
-        const res = await fetch(`${API_BASE}/history`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok) setReviewCount(data.history?.length || 0);
-      } catch {
-        // silently fail
-      }
-    }
-    fetchCount();
-  }, [token]);
+  const { user, logout } = useAuth();
 
   return (
     <header style={{
@@ -113,24 +94,9 @@ export default function Navbar() {
                 color: isActive ? tokens.accent : tokens.textMuted,
                 whiteSpace: "nowrap",
                 transition: "background 0.15s ease, color 0.15s ease",
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
               })}
             >
               {link.label}
-              {link.to === "/history" && reviewCount !== null && (
-                <span style={{
-                  fontSize: 10, fontWeight: 700,
-                  background: tokens.accent,
-                  color: "#fff",
-                  borderRadius: 20,
-                  padding: "1px 6px",
-                  lineHeight: 1.6,
-                }}>
-                  {reviewCount}
-                </span>
-              )}
             </NavLink>
           ))}
         </nav>
