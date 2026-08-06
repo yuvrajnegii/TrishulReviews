@@ -16,7 +16,6 @@ export default function Navbar() {
 
   return (
     <header
-      className="gl-animate-in"
       style={{
         background: tokens.surface,
         borderBottom: `1px solid ${tokens.border}`,
