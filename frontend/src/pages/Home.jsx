@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
@@ -139,23 +138,9 @@ export default function Home() {
             <h2 style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 0.5rem" }}>
               No reviews classified yet
             </h2>
-            <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: "0 auto 1.5rem", maxWidth: 400, lineHeight: 1.65 }}>
+            <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: "0 auto", maxWidth: 400, lineHeight: 1.65 }}>
               Paste your first batch of guest reviews and see sentiment, themes, and draft replies appear here in seconds.
             </p>
-            <Link
-              to="/classify"
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                fontSize: 14, fontWeight: 600, padding: "10px 22px",
-                background: tokens.accent, color: tokens.accentText, borderRadius: 9, textDecoration: "none",
-                transition: "transform 0.15s ease",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              Classify your first review
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            </Link>
           </section>
         )}
 
