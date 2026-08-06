@@ -22,14 +22,6 @@ const STEPS = [
   },
 ];
 
-const STACK = [
-  { label: "React + Vite", note: "Frontend" },
-  { label: "FastAPI", note: "Backend API" },
-  { label: "PostgreSQL", note: "Storage" },
-  { label: "Groq (Llama 3.3)", note: "Classification" },
-  { label: "JWT + bcrypt", note: "Authentication" },
-];
-
 export default function About() {
   const { tokens } = useTheme();
   return (
@@ -125,26 +117,6 @@ export default function About() {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* ── Built with ───────────────────────────────────────────────────── */}
-        <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem" }}>
-          Built with
-        </p>
-        <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 1.5rem" }}>
-          The stack behind it
-        </h2>
-
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: "3rem" }}>
-          {STACK.map(item => (
-            <div key={item.label} style={{
-              background: tokens.surfaceMuted, border: `1px solid ${tokens.border}`, borderRadius: 10,
-              padding: "10px 16px", minWidth: 140,
-            }}>
-              <p style={{ fontSize: 13.5, fontWeight: 600, color: tokens.text, margin: "0 0 2px" }}>{item.label}</p>
-              <p style={{ fontSize: 11, color: tokens.textFaint, margin: 0, textTransform: "uppercase", letterSpacing: "0.03em" }}>{item.note}</p>
-            </div>
-          ))}
         </div>
 
         {/* ── Closing note ─────────────────────────────────────────────────── */}
