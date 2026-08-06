@@ -43,12 +43,17 @@ const FEATURES = [
   },
 ];
 
-function StatCard({ label, value, color, tokens }) {
+function StatCard({ label, value, color, tokens, delay = 0 }) {
   return (
-    <div style={{
+    <div className="gl-animate-in" style={{
       background: tokens.surface, border: `1px solid ${tokens.border}`,
       borderRadius: 14, padding: "1.25rem 1.5rem",
-    }}>
+      animationDelay: `${delay}ms`,
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    }}
+    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 20px -8px rgba(28,27,31,0.15)"; }}
+    onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+    >
       <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.3rem" }}>{label}</p>
       <p style={{ fontSize: 28, fontWeight: 700, color: color || tokens.text, margin: 0, letterSpacing: "-0.02em" }}>{value}</p>
     </div>
@@ -124,14 +129,14 @@ export default function Home() {
             <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>Live stats</p>
             <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 1.25rem", textAlign: "center" }}>Review intelligence at a glance</h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.875rem", marginBottom: "1.25rem" }}>
-              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" tokens={tokens} />
-              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" tokens={tokens} />
-              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" tokens={tokens} />
-              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" tokens={tokens} />
+              <StatCard label="Total reviews" value={stats.total} color="#4F46B8" tokens={tokens} delay={0} />
+              <StatCard label="Positive" value={stats.counts.positive || 0} color="#0F7A52" tokens={tokens} delay={60} />
+              <StatCard label="Neutral" value={stats.counts.neutral || 0} color="#C99A3A" tokens={tokens} delay={120} />
+              <StatCard label="Negative" value={stats.counts.negative || 0} color="#B8460E" tokens={tokens} delay={180} />
             </div>
 
             {insight && (
-              <div style={{ background: tokens.accentSoft, border: `1px solid ${tokens.accent}30`, borderRadius: 12, padding: "0.875rem 1.25rem", display: "flex", alignItems: "flex-start", gap: 10, marginBottom: "1.5rem" }}>
+              <div className="gl-animate-in" style={{ background: tokens.accentSoft, border: `1px solid ${tokens.accent}30`, borderRadius: 12, padding: "0.875rem 1.25rem", display: "flex", alignItems: "flex-start", gap: 10, marginBottom: "1.5rem", animationDelay: "220ms" }}>
                 <span style={{ fontSize: 16, flexShrink: 0 }}>✨</span>
                 <p style={{ fontSize: 13, color: tokens.accent, margin: 0, fontWeight: 500, lineHeight: 1.6 }}>
                   <strong>AI Insight:</strong> {insight}
@@ -140,7 +145,7 @@ export default function Home() {
             )}
 
             {topThemes.length > 0 && (
-              <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "1.25rem 1.5rem" }}>
+              <div className="gl-animate-in" style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "1.25rem 1.5rem", animationDelay: "280ms" }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: tokens.text, margin: "0 0 1rem" }}>Topic breakdown</p>
                 {topThemes.map(([theme, count]) => (
                   <TopicBar key={theme} label={THEME_STYLE[theme]?.label || theme} count={count} total={stats.total} tokens={tokens} />
@@ -153,8 +158,8 @@ export default function Home() {
         <p style={{ fontSize: 11.5, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 0.5rem", textAlign: "center" }}>How it helps</p>
         <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 2rem", textAlign: "center" }}>From raw feedback to action, in seconds</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
-          {FEATURES.map(f => (
-            <Card key={f.title} icon={f.icon} title={f.title} description={f.description} accent={f.accent} />
+          {FEATURES.map((f, i) => (
+            <Card key={f.title} icon={f.icon} title={f.title} description={f.description} accent={f.accent} delay={i * 80} />
           ))}
         </div>
       </main>
