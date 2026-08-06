@@ -11,7 +11,7 @@ function ResultRow({ review, index, tokens }) {
   const ss = SENTIMENT_STYLE[review.sentiment] || SENTIMENT_STYLE.neutral;
   const ts = THEME_STYLE[review.theme] || THEME_STYLE.experience;
   return (
-    <tr style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top" }}>
+    <tr className="gl-animate-in" style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top", animationDelay: `${Math.min(index, 12) * 40}ms` }}>
       <td style={{ padding: "10px 12px", fontSize: 13, color: tokens.textFaint, fontWeight: 500, paddingTop: 14 }}>{index + 1}</td>
       <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.6, maxWidth: 260 }}>{review.text}</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={ss} label={ss.label} /></td>
@@ -144,9 +144,9 @@ export default function Classify() {
         {results.length > 0 && (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10, marginBottom: "1.5rem" }}>
-              <MetricCard value={counts.positive || 0} label="Positive" color={tokens.success} />
-              <MetricCard value={counts.neutral || 0} label="Neutral" color="#C99A3A" />
-              <MetricCard value={counts.negative || 0} label="Negative" color={tokens.danger} />
+              <MetricCard value={counts.positive || 0} label="Positive" color={tokens.success} delay={0} />
+              <MetricCard value={counts.neutral || 0} label="Neutral" color="#C99A3A" delay={60} />
+              <MetricCard value={counts.negative || 0} label="Negative" color={tokens.danger} delay={120} />
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1rem", flexWrap: "wrap" }}>
