@@ -234,7 +234,7 @@ export default function History() {
           <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: 0 }}>All past classified reviews stored in the database.</p>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={handleExportCSV} disabled={history.length === 0} style={{ ...btnStyle(false), opacity: history.length === 0 ? 0.5 : 1, cursor: history.length === 0 ? "not-allowed" : "pointer" }}>
-              Export CSV
+              Export to Excel
             </button>
             <button onClick={fetchHistory} style={btnStyle(false)}>Refresh</button>
           </div>
