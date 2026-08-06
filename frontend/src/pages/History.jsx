@@ -182,6 +182,42 @@ export default function History() {
     setEditSaving(false);
   }
 
+  function handleExportCSV() {
+    if (history.length === 0) return;
+
+    const escapeCsv = (value) => {
+      const str = String(value ?? "");
+      // Quote any field containing a comma, quote, or newline; double up internal quotes.
+      return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    };
+
+    const headers = ["ID", "Date", "Review", "Sentiment", "Theme", "Suggested response"];
+    const rows = history.map(r => [
+      r.id,
+      r.created_at,
+      r.review_text,
+      SENTIMENT_STYLE[r.sentiment]?.label || r.sentiment,
+      THEME_STYLE[r.theme]?.label || r.theme,
+      r.response,
+    ]);
+
+    const csv = [headers, ...rows].map(row => row.map(escapeCsv).join(",")).join("\r\n");
+    // Prepend a BOM so Excel opens UTF-8 (e.g. accented guest names) correctly.
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.download = `trishul-reviews-history-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setToast({ message: `Exported ${history.length} review${history.length !== 1 ? "s" : ""} to CSV.`, variant: "success" });
+  }
+
   useEffect(() => { fetchHistory(); }, []);
 
   const mobileHeaders = ["Date", "Review", ""];
@@ -196,7 +232,12 @@ export default function History() {
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: 8 }}>
           <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: 0 }}>All past classified reviews stored in the database.</p>
-          <button onClick={fetchHistory} style={btnStyle(false)}>Refresh</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={handleExportCSV} disabled={history.length === 0} style={{ ...btnStyle(false), opacity: history.length === 0 ? 0.5 : 1, cursor: history.length === 0 ? "not-allowed" : "pointer" }}>
+              Export CSV
+            </button>
+            <button onClick={fetchHistory} style={btnStyle(false)}>Refresh</button>
+          </div>
         </div>
 
         <div style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: "1.25rem", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
