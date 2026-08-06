@@ -9,13 +9,13 @@ import { API_BASE, THEME_TAGS, SENTIMENT_STYLE, THEME_STYLE, btnStyle } from "..
 
 const SENTIMENT_OPTIONS = ["positive", "neutral", "negative"];
 
-function HistoryRow({ row, onDelete, onView, onEdit, tokens, isMobile }) {
+function HistoryRow({ row, index, onDelete, onView, onEdit, tokens, isMobile }) {
   const ss = SENTIMENT_STYLE[row.sentiment] || SENTIMENT_STYLE.neutral;
   const ts = THEME_STYLE[row.theme] || THEME_STYLE.experience;
 
   if (isMobile) {
     return (
-      <tr style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top" }}>
+      <tr className="gl-animate-in" style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top", animationDelay: `${Math.min(index, 12) * 40}ms` }}>
         <td style={{ padding: "10px 12px", fontSize: 12, color: tokens.textFaint, whiteSpace: "nowrap", paddingTop: 14 }}>{row.created_at}</td>
         <td style={{ padding: "10px 8px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.5, maxWidth: 140 }}>
           <div style={{ marginBottom: 6 }}>{row.review_text.length > 80 ? row.review_text.slice(0, 80) + "…" : row.review_text}</div>
@@ -33,7 +33,7 @@ function HistoryRow({ row, onDelete, onView, onEdit, tokens, isMobile }) {
   }
 
   return (
-    <tr style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top" }}>
+    <tr className="gl-animate-in" style={{ borderBottom: `1px solid ${tokens.border}`, verticalAlign: "top", animationDelay: `${Math.min(index, 12) * 40}ms` }}>
       <td style={{ padding: "10px 12px", fontSize: 12, color: tokens.textFaint, paddingTop: 14, whiteSpace: "nowrap" }}>{row.created_at}</td>
       <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.6, maxWidth: 260 }}>{row.review_text}</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={ss} label={ss.label} /></td>
@@ -167,8 +167,8 @@ export default function History() {
     setEditError("");
     try {
       const res = await fetch(`${API_BASE}/history/${editRow.id}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        headers: { "Content-Type": "application/json" },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ sentiment: editSentiment, theme: editTheme, response: editResponse }),
       });
       const data = await res.json();
@@ -243,8 +243,8 @@ export default function History() {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map(row => (
-                    <HistoryRow key={row.id} row={row} onDelete={handleDelete} onView={handleView} onEdit={handleEdit} tokens={tokens} isMobile={isMobile} />
+                  {history.map((row, i) => (
+                    <HistoryRow key={row.id} row={row} index={i} onDelete={handleDelete} onView={handleView} onEdit={handleEdit} tokens={tokens} isMobile={isMobile} />
                   ))}
                 </tbody>
               </table>
