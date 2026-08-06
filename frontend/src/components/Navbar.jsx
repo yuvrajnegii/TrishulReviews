@@ -15,13 +15,16 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <header style={{
-      background: tokens.surface,
-      borderBottom: `1px solid ${tokens.border}`,
-      position: "sticky",
-      top: 0,
-      zIndex: 10,
-    }}>
+    <header
+      className="gl-animate-in"
+      style={{
+        background: tokens.surface,
+        borderBottom: `1px solid ${tokens.border}`,
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+      }}
+    >
       <div style={{
         maxWidth: 960,
         margin: "0 auto",
@@ -36,7 +39,15 @@ export default function Navbar() {
         }}>
           {/* Brand */}
           <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <div style={{ width: 30, height: 30, borderRadius: 8, background: tokens.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <div
+              style={{
+                width: 30, height: 30, borderRadius: 8, background: tokens.accentSoft,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                transition: "transform 0.2s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.08)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; }}
+            >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={tokens.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
