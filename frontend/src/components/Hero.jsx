@@ -43,7 +43,7 @@ export default function Hero({
       className="hero-grid"
       >
         {/* Copy column */}
-        <div>
+        <div className="gl-animate-in">
           <p style={{
             fontSize: 12, fontWeight: 600, letterSpacing: "0.04em",
             color: tokens.accent, margin: "0 0 0.85rem",
@@ -65,11 +65,17 @@ export default function Hero({
           }}>
             {subtitle}
           </p>
-          <Link to={ctaTo} style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            fontSize: 14, fontWeight: 600, padding: "11px 22px",
-            background: tokens.accent, color: tokens.accentText, borderRadius: 9, textDecoration: "none",
-          }}>
+          <Link
+            to={ctaTo}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              fontSize: 14, fontWeight: 600, padding: "11px 22px",
+              background: tokens.accent, color: tokens.accentText, borderRadius: 9, textDecoration: "none",
+              transition: "transform 0.15s ease, box-shadow 0.15s ease",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 6px 16px -4px ${tokens.accent}55`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+          >
             {ctaLabel}
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </Link>
@@ -77,13 +83,19 @@ export default function Hero({
 
         {/* Preview column — a static mock of what a classified review card
             looks like, so the hero shows the product instead of describing it */}
-        <div style={{
-          background: tokens.bg,
-          border: `1px solid ${tokens.border}`,
-          borderRadius: 14,
-          padding: "1.1rem 1.1rem 1.25rem",
-          boxShadow: tokens.bg === "#fafaf9" ? "0 1px 2px rgba(28,27,31,0.04), 0 12px 28px -8px rgba(28,27,31,0.08)" : "none",
-        }}
+        <div
+          className="gl-animate-in"
+          style={{
+            background: tokens.bg,
+            border: `1px solid ${tokens.border}`,
+            borderRadius: 14,
+            padding: "1.1rem 1.1rem 1.25rem",
+            boxShadow: tokens.bg === "#fafaf9" ? "0 1px 2px rgba(28,27,31,0.04), 0 12px 28px -8px rgba(28,27,31,0.08)" : "none",
+            animationDelay: "0.1s",
+            transition: "transform 0.25s ease, box-shadow 0.25s ease",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
         >
           <p style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: tokens.textFaint, margin: "0 0 10px" }}>
             Guest review
