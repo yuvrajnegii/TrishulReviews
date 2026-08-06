@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import Card from "../components/Card";
@@ -123,6 +124,40 @@ export default function Home() {
       <Hero />
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "3rem 1.5rem", width: "100%", boxSizing: "border-box" }}>
+
+        {stats && stats.total === 0 && (
+          <section className="gl-animate-in" style={{
+            marginBottom: "3rem", textAlign: "center",
+            background: tokens.surface, border: `1px dashed ${tokens.border}`, borderRadius: 16,
+            padding: "2.75rem 1.5rem",
+          }}>
+            <div style={{ width: 46, height: 46, borderRadius: 12, background: tokens.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem" }}>
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={tokens.accent} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <h2 style={{ fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", color: tokens.text, margin: "0 0 0.5rem" }}>
+              No reviews classified yet
+            </h2>
+            <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: "0 auto 1.5rem", maxWidth: 400, lineHeight: 1.65 }}>
+              Paste your first batch of guest reviews and see sentiment, themes, and draft replies appear here in seconds.
+            </p>
+            <Link
+              to="/classify"
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                fontSize: 14, fontWeight: 600, padding: "10px 22px",
+                background: tokens.accent, color: tokens.accentText, borderRadius: 9, textDecoration: "none",
+                transition: "transform 0.15s ease",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              Classify your first review
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            </Link>
+          </section>
+        )}
 
         {stats && stats.total > 0 && (
           <section style={{ marginBottom: "3rem" }}>
