@@ -3,6 +3,7 @@ import { useAuth } from "../AuthContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Badge from "../components/Badge";
+import CopyReplyButton from "../components/CopyReplyButton";
 import { Modal, Input, Button, Toast } from "../components/ui";
 import { useTheme } from "../ThemeContext";
 import { API_BASE, THEME_TAGS, SENTIMENT_STYLE, THEME_STYLE, btnStyle } from "../constants";
@@ -38,7 +39,12 @@ function HistoryRow({ row, index, onDelete, onView, onEdit, tokens, isMobile }) 
       <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.6, maxWidth: 260 }}>{row.review_text}</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={ss} label={ss.label} /></td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={{ bg: ts.bg, text: ts.text, border: ts.bg }} label={ts.label} /></td>
-      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: tokens.textFaint, fontStyle: "italic", lineHeight: 1.6, maxWidth: 200 }}>"{row.response}"</td>
+      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: tokens.textFaint, lineHeight: 1.6, maxWidth: 200 }}>
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <span style={{ fontStyle: "italic" }}>"{row.response}"</span>
+          <CopyReplyButton text={row.response} />
+        </div>
+      </td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 12, whiteSpace: "nowrap" }}>
         <div style={{ display: "flex", gap: 6 }}>
           <button onClick={() => onView(row.id)} style={{ fontSize: 11, fontWeight: 600, padding: "3px 8px", cursor: "pointer", border: `1px solid ${tokens.border}`, borderRadius: 6, background: tokens.surface, color: tokens.accent }}>View</button>
@@ -234,7 +240,7 @@ export default function History() {
           <p style={{ fontSize: 13.5, color: tokens.textMuted, margin: 0 }}>All past classified reviews stored in the database.</p>
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={handleExportCSV} disabled={history.length === 0} style={{ ...btnStyle(false), opacity: history.length === 0 ? 0.5 : 1, cursor: history.length === 0 ? "not-allowed" : "pointer" }}>
-              Export to Excel
+              Export CSV
             </button>
             <button onClick={fetchHistory} style={btnStyle(false)}>Refresh</button>
           </div>
@@ -306,7 +312,10 @@ export default function History() {
               <Badge style={SENTIMENT_STYLE[viewRow.sentiment] || SENTIMENT_STYLE.neutral} label={(SENTIMENT_STYLE[viewRow.sentiment] || SENTIMENT_STYLE.neutral).label} />
               <Badge style={{ bg: THEME_STYLE[viewRow.theme]?.bg, text: THEME_STYLE[viewRow.theme]?.text, border: THEME_STYLE[viewRow.theme]?.bg }} label={THEME_STYLE[viewRow.theme]?.label || viewRow.theme} />
             </div>
-            <div><strong style={{ color: tokens.text }}>Suggested response:</strong> "{viewRow.response}"</div>
+            <div style={{ display: "flex", alignItems: "flex-start", flexWrap: "wrap" }}>
+              <span><strong style={{ color: tokens.text }}>Suggested response:</strong> "{viewRow.response}"</span>
+              <CopyReplyButton text={viewRow.response} />
+            </div>
           </div>
         )}
       </Modal>
