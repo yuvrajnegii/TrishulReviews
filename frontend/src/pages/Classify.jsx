@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Badge from "../components/Badge";
 import MetricCard from "../components/MetricCard";
+import CopyReplyButton from "../components/CopyReplyButton";
 import { useTheme } from "../ThemeContext";
 import { API_BASE, THEME_TAGS, SENTIMENT_STYLE, THEME_STYLE, SAMPLE_REVIEWS, btnStyle } from "../constants";
 
@@ -16,7 +17,12 @@ function ResultRow({ review, index, tokens }) {
       <td style={{ padding: "10px 12px 10px 0", fontSize: 13, color: tokens.text, lineHeight: 1.6, maxWidth: 260 }}>{review.text}</td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={ss} label={ss.label} /></td>
       <td style={{ padding: "10px 12px 10px 0", paddingTop: 14 }}><Badge style={{ bg: ts.bg, text: ts.text, border: ts.bg }} label={ts.label} /></td>
-      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: tokens.textFaint, fontStyle: "italic", lineHeight: 1.6, maxWidth: 200 }}>"{review.response}"</td>
+      <td style={{ padding: "10px 12px 10px 0", fontSize: 12, color: tokens.textFaint, lineHeight: 1.6, maxWidth: 200 }}>
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <span style={{ fontStyle: "italic" }}>"{review.response}"</span>
+          <CopyReplyButton text={review.response} />
+        </div>
+      </td>
     </tr>
   );
 }
